@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kuis Interaktif - Proyek Kebersamaan Kelas 5 (Formatif 3)</title>
+    <title>Penilaian Formatif 3 - Proyek Kebersamaan Kelas 5</title>
     <style>
         :root {
             --primary-color: #2e7d32;
@@ -92,6 +92,7 @@
         .media-box svg {
             max-width: 220px;
             height: auto;
+            filter: drop-shadow(0px 4px 6px rgba(0,0,0,0.1));
         }
 
         /* Animasi SVG Taman Bunga */
@@ -102,9 +103,9 @@
         }
         
         @keyframes grow-sprout {
-            0% { transform: scale(0.8); }
+            0% { transform: scale(0.9); }
             50% { transform: scale(1.1); }
-            100% { transform: scale(0.8); }
+            100% { transform: scale(0.9); }
         }
 
         .animated-pot {
@@ -158,6 +159,7 @@
         .nav-buttons {
             display: flex;
             justify-content: space-between;
+            align-items: center;
             margin-top: 25px;
         }
 
@@ -174,7 +176,53 @@
         .btn-primary { background: var(--primary-color); color: white; }
         .btn-secondary { background: #718096; color: white; }
         .btn-danger { background: #e53e3e; color: white; }
+        .btn-palette { background: var(--accent-color); color: white; }
         .btn:disabled { background: #cbd5e0; cursor: not-allowed; }
+
+        /* MODAL POPUP PALET NAVIGASI SOAL */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+        }
+        .modal-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+        .palette-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin: 20px 0;
+        }
+        .palette-btn {
+            padding: 12px;
+            font-weight: bold;
+            font-size: 1rem;
+            border-radius: 8px;
+            border: 2px solid #cbd5e0;
+            cursor: pointer;
+            background: #f7fafc;
+        }
+        .palette-btn.active {
+            border-color: #2e7d32;
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        .palette-btn.answered {
+            background: #43a047;
+            color: white;
+            border-color: #43a047;
+        }
 
         /* Result styling */
         .result-card { text-align: center; padding: 20px; }
@@ -186,13 +234,13 @@
         }
     </style>
 </head>
-<body>
+<body onclick="initAudioContext()">
 
     <header>
-        <h2>Kuis Matematika Interaktif</h2>
+        <h2>Penilaian Formatif 3: Matematika</h2>
         <div class="audio-controls">
-            <button id="btn-bgm" onclick="toggleBGM()">🎵 Musik: OFF</button>
-            <button id="btn-vo" onclick="toggleVO()">🔊 Suara/VO: ON</button>
+            <button id="btn-bgm" onclick="toggleBGM(event)">🎵 Musik: OFF</button>
+            <button id="btn-vo" onclick="toggleVO(event)">🔊 Suara/VO: ON</button>
             <button class="btn-portal" onclick="openTeacherPortal()">🔑 Portal Guru</button>
         </div>
     </header>
@@ -200,8 +248,8 @@
     <div class="container">
         <!-- STEP 1: IDENTITAS SISWA -->
         <div id="screen-intro">
-            <h2>Penilaian Formatif 3: Proyek Kebersamaan Kelas 5</h2>
-            <p style="margin-top: 5px; color: #4a5568;">Isi data diri Anda terlebih dahulu untuk memulai pengerjaan kuis.</p>
+            <h2>SOAL PENILAIAN FORMATIF 3</h2>
+            <p style="margin-top: 5px; color: #4a5568;">Petunjuk: Bacalah dengan cermat dan gunakan data dalam bacaan untuk memecahkan kasus dengan tepat dan logis!</p>
             <br>
             <form onsubmit="startQuiz(event)">
                 <label for="student-name"><b>Nama Lengkap Siswa:</b></label>
@@ -210,7 +258,7 @@
                 <label for="student-class"><b>Kelas / No. Absen:</b></label>
                 <input type="text" id="student-class" required placeholder="Contoh: 5A / 08">
 
-                <button type="submit" class="btn btn-primary" style="width: 100%;">Mulai Mengerjakan Kuis</button>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Mulai Mengerjakan Formatif 3</button>
             </form>
         </div>
 
@@ -223,13 +271,13 @@
 
             <!-- BACAAN DAPAT DIBUKA / DITUTUP SAAT MENGERJAKAN -->
             <button type="button" class="story-toggle-btn" onclick="toggleStory()">
-                <span>📖 Tampilkan / Sembunyikan Bacaan Kasus (Taman Kelas 5)</span>
+                <span>📖 Tampilkan / Sembunyikan Bacaan Kasus (Proyek Kebersamaan Kelas 5)</span>
                 <span id="story-toggle-icon">▼ Klik untuk membuka</span>
             </button>
 
             <div id="story-container" class="story-box hidden">
                 <h3>🌱 Kasus: Proyek Kebersamaan Kelas 5</h3>
-                <p>Siswa kelas 5 SD Harapan Bangsa berencana membuat taman kecil di halaman sekolah. Untuk itu, mereka membeli perlengkapan berupa <b>20 kantong tanah</b>, <b>15 pot bunga</b>, dan <b>10 bibit bunga</b>. Uang kas kelas yang tersedia sebesar <b>Rp400.000</b>. Sisa uang akan digunakan untuk membeli cat pot dan papan nama taman.</p>
+                <p>Siswa kelas 5 SD Harapan Bangsa berencana membuat taman kecil di halaman sekolah. Untuk itu, mereka membeli perlengkapan berupa <b>20 kantong tanah</b>, <b>15 pot bunga</b>, dan <b>10 bibit bunga</b>. Harga masing-masing barang disajikan dalam tabel berikut:</p>
                 <br>
                 <table>
                     <thead>
@@ -239,22 +287,36 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr><td>Kantong tanah</td><td>8.000</td></tr>
-                        <tr><td>Pot bunga</td><td>12.000</td></tr>
-                        <tr><td>Bibit bunga</td><td>5.000</td></tr>
+                        <tr><td>Kantong tanah</td><td>1.600</td></tr>
+                        <tr><td>Pot bunga</td><td>2.400</td></tr>
+                        <tr><td>Bibit bunga</td><td>1.000</td></tr>
                     </tbody>
                 </table>
+                <p>Uang kas kelas yang tersedia sebesar <b>Rp80.000</b>. Sisa uang akan digunakan untuk membeli cat pot dan papan nama taman.</p>
             </div>
 
-            <!-- SVG Visual Animasi Ilustrasi Taman -->
+            <!-- SVG Visual Animasi Ilustrasi Berkebun / Taman -->
             <div class="media-box" id="media-container"></div>
 
             <div id="question-container"></div>
 
             <div class="nav-buttons">
                 <button id="btn-prev" class="btn btn-secondary" onclick="prevQuestion()">Sebelumnya</button>
+                <button class="btn btn-palette" onclick="openPaletteModal()">📌 Navigasi Soal</button>
                 <button id="btn-next" class="btn btn-primary" onclick="nextQuestion()">Selanjutnya</button>
                 <button id="btn-finish" class="btn btn-primary hidden" onclick="confirmFinish()">Selesai & Kirim</button>
+            </div>
+        </div>
+
+        <!-- MODAL PALET NAVIGASI SOAL -->
+        <div id="modal-palette" class="modal-overlay hidden">
+            <div class="modal-card">
+                <h3>📌 Navigasi Nomor Soal</h3>
+                <p style="font-size: 0.85rem; color: #718096; margin-top: 5px;">Pilih nomor soal untuk langsung berpindah halaman:</p>
+                <div class="palette-grid" id="palette-grid">
+                    <!-- Buttons rendered dynamically -->
+                </div>
+                <button class="btn btn-secondary" style="width: 100%;" onclick="closePaletteModal()">Tutup</button>
             </div>
         </div>
 
@@ -262,10 +324,11 @@
         <div id="screen-result" class="hidden">
             <div class="result-card">
                 <h2>Hasil Penilaian Formatif 3</h2>
-                <p>Terima kasih telah menyelesaikan kuis ini!</p>
+                <p>Terima kasih telah menyelesaikan penilaian formatif ini!</p>
                 
                 <div class="score-display" id="final-score">0</div>
                 <p id="final-category" style="font-size: 1.2rem; font-weight: bold; margin-bottom: 10px;"></p>
+                <p id="detail-score-breakdown" style="font-size: 0.95rem; color: #4a5568; margin-bottom: 10px;"></p>
                 <p id="final-time"></p>
                 
                 <hr style="margin: 20px 0;">
@@ -279,8 +342,8 @@
 
         <!-- STEP 4: PORTAL GURU (REKAP DATA) -->
         <div id="screen-teacher" class="hidden">
-            <h2>🔑 Portal Guru - Rekapitulasi Data Hasil Kuis (Formatif 3)</h2>
-            <p style="margin-bottom: 15px;">Data nilai seluruh siswa yang telah menyelesaikan kuis:</p>
+            <h2>🔑 Portal Guru - Rekapitulasi Data Hasil Penilaian Formatif 3</h2>
+            <p style="margin-bottom: 15px;">Data nilai seluruh siswa yang telah menyelesaikan penilaian formatif:</p>
 
             <button class="btn btn-primary" onclick="downloadExcel()" style="margin-bottom: 15px;">📥 Unduh Data Rekap (Excel/CSV)</button>
             <button class="btn btn-secondary" onclick="clearData()" style="margin-bottom: 15px; background: #c53030;">🗑 Hapus Semua Data Browser</button>
@@ -306,34 +369,37 @@
             </div>
 
             <br>
-            <button class="btn btn-secondary" onclick="closeTeacherPortal()">Kembali ke Kuis</button>
+            <button class="btn btn-secondary" onclick="closeTeacherPortal()">Kembali ke Soal</button>
         </div>
     </div>
 
     <script>
-        // MASUKKAN URL GOOGLE APPS SCRIPT ANDA DI SINI
+        // URL GOOGLE APPS SCRIPT FORMATIF 3
         const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzfl6j1-hJO_2PMW1UqHNs7NHbUxZUuQ8KuaDtBef2PRCFbO_n7KNGDpDIR489IDsz5nw/exec";
         const TEACHER_PASS = "GuruCerdas#2026!Math";
 
-        // DATA SOAL FORMATIF 3 (Sesuai Dokumen)
+        // DATA SOAL FORMATIF 3 (PRESISI SESUAI NASKAH FORMATIF 3 REVISI)
         const quizData = [
             {
                 type: 'pgk',
                 prompt: "Perhatikan pernyataan-pernyataan berikut terkait perhitungan biaya perlengkapan taman, kemudian tentukan apakah tiap pernyataan Benar atau Salah!",
                 statements: [
                     { id: '1a', text: "a. Menghitung selisih antara uang kas kelas dan total biaya perlengkapan taman termasuk penerapan operasi pengurangan.", key: "Benar" },
-                    { id: '1b', text: "b. Total biaya seluruh perlengkapan taman yang dihitung dari tabel harga adalah Rp435.000.", key: "Salah" },
+                    { id: '1b', text: "b. Total biaya seluruh perlengkapan taman yang dihitung dari tabel harga adalah Rp87.000.", key: "Salah" },
                     { id: '1c', text: "c. Menghitung selisih antara uang kas kelas dan total biaya perlengkapan taman termasuk penerapan operasi perkalian.", key: "Salah" },
-                    { id: '1d', text: "d. (20×8.000)+(15×12.000)+(10×5.000) adalah bentuk perhitungan yang tepat untuk menentukan total biaya seluruh perlengkapan taman.", key: "Benar" },
+                    { id: '1d', text: "d. (20×1.600)+(15×2.400)+(10×1.000) adalah bentuk perhitungan yang tepat untuk menentukan total biaya seluruh perlengkapan taman.", key: "Benar" },
                     { id: '1e', text: "e. Contoh lain penerapan operasi hitung campuran (perkalian dan penjumlahan) dalam kehidupan sehari-hari adalah menghitung total harga belanja bulanan yang terdiri atas beberapa jenis barang dengan harga dan jumlah yang berbeda-beda.", key: "Benar" }
                 ],
+                // ILUSTRASI 1: POT BUNGA DAN KANTONG TANAH KEBUN
                 svg: `
                 <svg viewBox="0 0 120 100">
-                    <rect x="25" y="45" width="30" height="40" fill="#795548" rx="3"/>
-                    <text x="40" y="68" font-size="8" fill="#fff" text-anchor="middle">TANAH</text>
-                    <path d="M70 85 L65 55 L85 55 L80 85 Z" fill="#d84315" class="animated-pot"/>
-                    <circle cx="75" cy="48" r="10" fill="#e91e63" class="animated-sprout"/>
-                    <text x="60" y="96" font-size="9" fill="#2e7d32" text-anchor="middle" font-weight="bold">Perhitungan Biaya Perlengkapan</text>
+                    <rect x="20" y="45" width="30" height="40" rx="3" fill="#795548"/>
+                    <text x="35" y="68" font-size="7" fill="#fff" text-anchor="middle" font-weight="bold">TANAH</text>
+                    <path d="M70 85 L62 55 L88 55 L80 85 Z" fill="#d84315" class="animated-pot"/>
+                    <circle cx="75" cy="48" r="9" fill="#e91e63" class="animated-sprout"/>
+                    <circle cx="68" cy="42" r="6" fill="#f48fb1"/>
+                    <circle cx="82" cy="42" r="6" fill="#f48fb1"/>
+                    <text x="60" y="97" font-size="9" fill="#2e7d32" text-anchor="middle" font-weight="bold">Pot Bunga & Perlengkapan</text>
                 </svg>`
             },
             {
@@ -341,49 +407,57 @@
                 prompt: "Perhatikan pernyataan-pernyataan berikut terkait perubahan harga dan ringkasan proyek, kemudian tentukan apakah tiap pernyataan Benar atau Salah!",
                 statements: [
                     { id: '2a', text: "a. Jika seluruh harga barang pada tabel naik 10%, maka total biaya perlengkapan taman pasti akan tetap sama seperti sebelumnya.", key: "Salah" },
-                    { id: '2b', text: "b. Secara ringkas, proyek Kebersamaan Kelas 5 melibatkan pembelian tiga jenis barang (kantong tanah, pot bunga, dan bibit bunga) menggunakan uang kas kelas sebesar Rp400.000.", key: "Benar" },
-                    { id: '2c', text: "c. Kenaikan harga pot bunga menjadi Rp15.000 per pot akan menyebabkan total biaya perlengkapan taman menjadi lebih kecil dari sebelumnya.", key: "Salah" },
+                    { id: '2b', text: "b. Secara ringkas, proyek Kebersamaan Kelas 5 melibatkan pembelian tiga jenis barang (kantong tanah, pot bunga, dan bibit bunga) menggunakan uang kas kelas sebesar Rp80.000.", key: "Benar" },
+                    { id: '2c', text: "c. Kenaikan harga pot bunga menjadi Rp3.000 per pot akan menyebabkan total biaya perlengkapan taman menjadi lebih kecil dari sebelumnya.", key: "Salah" },
                     { id: '2d', text: "d. Secara ringkas, proyek Kebersamaan Kelas 5 hanya melibatkan pembelian pot bunga dan bibit bunga.", key: "Salah" },
-                    { id: '2e', text: "e. Jika harga pot bunga naik menjadi Rp15.000 per pot, maka total biaya seluruh perlengkapan akan menjadi Rp435.000.", key: "Benar" }
+                    { id: '2e', text: "e. Jika harga pot bunga naik menjadi Rp3.000 per pot, maka total biaya seluruh perlengkapan akan menjadi Rp87.000.", key: "Benar" }
                 ],
+                // ILUSTRASI 2: POHON RINDANG & TAMAN BUNGA SEKOLAH
                 svg: `
                 <svg viewBox="0 0 120 100">
-                    <path d="M40 80 L35 50 L65 50 L60 80 Z" fill="#8d6e63"/>
-                    <path d="M50 50 Q40 30 50 20 Q60 30 50 50 Z" fill="#4caf50" class="animated-sprout"/>
-                    <circle cx="85" cy="40" r="15" fill="#ffb300"/>
-                    <text x="85" y="44" font-size="12" fill="#fff" text-anchor="middle" font-weight="bold">%</text>
-                    <text x="60" y="96" font-size="9" fill="#2e7d32" text-anchor="middle" font-weight="bold">Perubahan Harga & Proyek</text>
+                    <path d="M40 85 L40 50" stroke="#5d4037" stroke-width="7" stroke-linecap="round"/>
+                    <circle cx="40" cy="35" r="22" fill="#388e3c"/>
+                    <circle cx="28" cy="38" r="14" fill="#4caf50"/>
+                    <circle cx="52" cy="38" r="14" fill="#4caf50"/>
+                    <circle cx="85" cy="70" r="10" fill="#ffb300" class="animated-sprout"/>
+                    <circle cx="75" cy="78" r="8" fill="#e91e63"/>
+                    <circle cx="95" cy="78" r="8" fill="#9c27b0"/>
+                    <text x="60" y="97" font-size="9" fill="#2e7d32" text-anchor="middle" font-weight="bold">Taman Bunga Halaman Sekolah</text>
                 </svg>`
             },
             {
                 type: 'pgk',
                 prompt: "Perhatikan pernyataan-pernyataan berikut terkait perbandingan biaya dan langkah penyelesaian, kemudian tentukan apakah tiap pernyataan Benar atau Salah!",
                 statements: [
-                    { id: '3a', text: "a. Langkah menentukan sisa uang kas kelas setelah membeli seluruh perlengkapan taman adalah dengan menjumlahkan seluruh biaya barang (Rp390.000), kemudian menguranginya dari uang kas (Rp400.000), sehingga diperoleh sisa Rp10.000.", key: "Benar" },
-                    { id: '3b', text: "b. Biaya pembelian kantong tanah (Rp160.000) lebih besar dibandingkan biaya pembelian pot bunga (Rp180.000).", key: "Salah" },
+                    { id: '3a', text: "a. Langkah menentukan sisa uang kas kelas setelah membeli seluruh perlengkapan taman adalah dengan menjumlahkan seluruh biaya barang (Rp78.000), kemudian menguranginya dari uang kas (Rp80.000), sehingga diperoleh sisa Rp2.000.", key: "Benar" },
+                    { id: '3b', text: "b. Biaya pembelian kantong tanah (Rp32.000) lebih besar dibandingkan biaya pembelian pot bunga (Rp36.000).", key: "Salah" },
                     { id: '3c', text: "c. Biaya pembelian bibit bunga lebih besar dibandingkan biaya pembelian pot bunga.", key: "Salah" },
-                    { id: '3d', text: "d. Biaya pembelian pot bunga (Rp180.000) lebih besar Rp130.000 dibandingkan biaya pembelian bibit bunga (Rp50.000).", key: "Benar" },
+                    { id: '3d', text: "d. Biaya pembelian pot bunga (Rp36.000) lebih besar Rp26.000 dibandingkan biaya pembelian bibit bunga (Rp10.000).", key: "Benar" },
                     { id: '3e', text: "e. Sisa uang kas kelas dapat langsung diketahui tanpa perlu menjumlahkan biaya seluruh barang terlebih dahulu.", key: "Salah" }
                 ],
+                // ILUSTRASI 3: PERALATAN BERKEBUN (SEKOP & CAN WETERING)
                 svg: `
                 <svg viewBox="0 0 120 100">
-                    <rect x="20" y="30" width="80" height="45" rx="5" fill="#a5d6a7" stroke="#2e7d32" stroke-width="2"/>
-                    <text x="60" y="50" font-size="11" fill="#1b5e20" text-anchor="middle" font-weight="bold">UANG KAS: 400RB</text>
-                    <text x="60" y="65" font-size="9" fill="#c62828" text-anchor="middle" font-weight="bold">- Biaya: 390RB</text>
-                    <text x="60" y="96" font-size="9" fill="#2e7d32" text-anchor="middle" font-weight="bold">Perbandingan & Sisa Kas</text>
+                    <rect x="25" y="30" width="70" height="40" rx="4" fill="#a5d6a7" stroke="#2e7d32" stroke-width="2"/>
+                    <text x="60" y="48" font-size="10" fill="#1b5e20" text-anchor="middle" font-weight="bold">KAS: Rp80.000</text>
+                    <text x="60" y="62" font-size="9" fill="#c62828" text-anchor="middle" font-weight="bold">- Biaya: Rp78.000</text>
+                    <path d="M100 40 L110 55 L95 65 Z" fill="#78909c"/>
+                    <text x="60" y="97" font-size="9" fill="#2e7d32" text-anchor="middle" font-weight="bold">Peralatan & Kas Berkebun</text>
                 </svg>`
             },
             {
                 type: 'uraian',
-                prompt: "Setelah membeli semua perlengkapan taman (total Rp390.000), uang kas tersisa (Rp400.000 – Rp390.000 = Rp10.000) digunakan untuk membeli cat pot seharga Rp25.000 per kaleng. Berapa kaleng cat yang dapat dibeli dengan sisa uang tersebut?",
-                placeholder: "Tuliskan langkah penyelesaian (diketahui, ditanya, jawab) dan kesimpulannya...",
-                keyKeywords: ["0", "tidak bisa", "belum cukup", "tidak dapat", "kurang"],
+                prompt: "Setelah membeli semua perlengkapan taman (total Rp78.000), uang kas tersisa (Rp80.000 – Rp78.000 = Rp2.000) digunakan untuk membeli cat pot seharga Rp5.000 per kaleng. Berapa kaleng cat yang dapat dibeli dengan sisa uang tersebut?",
+                placeholder: "Tuliskan langkah pengerjaan (diketahui, ditanya, jawab, kesimpulan)...",
+                // ILUSTRASI 4: KALENG CAT POT & KUAS
                 svg: `
                 <svg viewBox="0 0 120 100">
                     <rect x="45" y="35" width="30" height="40" rx="3" fill="#0288d1" class="animated-sprout"/>
                     <path d="M42 35 L78 35 L78 30 L42 30 Z" fill="#01579b"/>
-                    <text x="60" y="60" font-size="9" fill="#fff" text-anchor="middle" font-weight="bold">CAT</text>
-                    <text x="60" y="96" font-size="9" fill="#2e7d32" text-anchor="middle" font-weight="bold">Pembelian Cat Pot</text>
+                    <rect x="52" y="48" width="16" height="15" fill="#fff" rx="2"/>
+                    <text x="60" y="59" font-size="8" fill="#0288d1" text-anchor="middle" font-weight="bold">CAT</text>
+                    <path d="M85 30 L90 50 L85 75" stroke="#795548" stroke-width="4" stroke-linecap="round"/>
+                    <text x="60" y="97" font-size="9" fill="#2e7d32" text-anchor="middle" font-weight="bold">Mengecat Pot Bunga</text>
                 </svg>`
             }
         ];
@@ -399,13 +473,16 @@
         let audioCtx;
         let bgmNoteIndex = 0;
 
-        // Audio Up-beat Notes
         const upbeatNotes = [261.63, 311.13, 392.00, 523.25, 392.00, 311.13, 349.23, 440.00];
+
+        function initAudioContext() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+        }
 
         function playBGM() {
             if (!bgmOn) return;
-            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            if (audioCtx.state === 'suspended') audioCtx.resume();
+            initAudioContext();
             
             let osc = audioCtx.createOscillator();
             let gain = audioCtx.createGain();
@@ -426,13 +503,15 @@
             if (bgmOn) setTimeout(playBGM, 180);
         }
 
-        function toggleBGM() {
+        function toggleBGM(e) {
+            if (e) e.stopPropagation();
             bgmOn = !bgmOn;
             document.getElementById('btn-bgm').innerText = `🎵 Musik: ${bgmOn ? 'ON' : 'OFF'}`;
             if (bgmOn) playBGM();
         }
 
-        function toggleVO() {
+        function toggleVO(e) {
+            if (e) e.stopPropagation();
             voOn = !voOn;
             document.getElementById('btn-vo').innerText = `🔊 Suara/VO: ${voOn ? 'ON' : 'OFF'}`;
             if (!voOn && window.speechSynthesis) window.speechSynthesis.cancel();
@@ -471,9 +550,13 @@
 
         function startQuiz(e) {
             e.preventDefault();
-            let name = document.getElementById('student-name').value;
-            let cls = document.getElementById('student-class').value;
+            let name = document.getElementById('student-name').value.trim();
+            let cls = document.getElementById('student-class').value.trim();
+            
+            if (!name || !cls) return alert("Harap isi Nama dan Kelas/Absen!");
+
             currentStudent = { name, class: cls };
+            studentAnswers = {};
 
             document.getElementById('screen-intro').classList.add('hidden');
             document.getElementById('screen-quiz').classList.remove('hidden');
@@ -516,7 +599,7 @@
                 let ans = studentAnswers[`uraian_${currentIdx}`] || '';
                 html += `
                     <label><b>Jawaban / Langkah Penyelesaian Anda:</b></label>
-                    <textarea id="input-uraian" rows="4" style="width:100%; padding:10px; margin-top:10px; border-radius:6px; border:1px solid #ccc;" placeholder="${q.placeholder}" oninput="saveAnswer('uraian_${currentIdx}', this.value)">${ans}</textarea>
+                    <textarea id="input-uraian" rows="5" style="width:100%; padding:10px; margin-top:10px; border-radius:6px; border:1px solid #ccc; font-size:1rem;" placeholder="${q.placeholder}" oninput="saveAnswer('uraian_${currentIdx}', this.value)">${ans}</textarea>
                 `;
             }
 
@@ -558,19 +641,54 @@
             }
         }
 
+        // NAVIGASI PALET MODAL LOGIC
+        function openPaletteModal() {
+            const paletteGrid = document.getElementById('palette-grid');
+            paletteGrid.innerHTML = '';
+            
+            quizData.forEach((q, idx) => {
+                let isAnswered = false;
+                if (q.type === 'pgk') {
+                    isAnswered = q.statements.some(st => studentAnswers[st.id]);
+                } else {
+                    isAnswered = studentAnswers[`uraian_${idx}`] && studentAnswers[`uraian_${idx}`].trim().length > 0;
+                }
+
+                let activeClass = (idx === currentIdx) ? 'active' : '';
+                let answeredClass = isAnswered ? 'answered' : '';
+
+                paletteGrid.innerHTML += `
+                    <button class="palette-btn ${activeClass} ${answeredClass}" onclick="jumpToQuestion(${idx})">
+                        ${idx + 1}
+                    </button>
+                `;
+            });
+
+            document.getElementById('modal-palette').classList.remove('hidden');
+        }
+
+        function closePaletteModal() {
+            document.getElementById('modal-palette').classList.add('hidden');
+        }
+
+        function jumpToQuestion(idx) {
+            currentIdx = idx;
+            closePaletteModal();
+            renderQuestion();
+        }
+
         function confirmFinish() {
-            if (confirm("Apakah Anda yakin ingin menyelesaikan kuis ini?")) {
+            if (confirm("Apakah Anda yakin ingin menyelesaikan penilaian formatif 3 ini?")) {
                 clearInterval(timerInterval);
                 calculateResult();
             }
         }
 
-        // PENILAIAN FORMATIF 3 (SKOR MAX 19)
         function calculateResult() {
-            let pgkScore = 0; // max 15
+            let pgkScore = 0; // max 15 (3 x 5 pernyataan)
             let uraianScore = 0; // max 4
 
-            // PGK Scoring (15 item)
+            // PGK Scoring
             quizData.forEach((q) => {
                 if (q.type === 'pgk') {
                     q.statements.forEach((st) => {
@@ -581,18 +699,20 @@
                 }
             });
 
-            // Uraian Scoring (Kunci: 0 Kaleng / Belum Cukup)
+            // Uraian Scoring (Kunci: 0 kaleng / belum cukup / tidak bisa)
             quizData.forEach((q, idx) => {
                 if (q.type === 'uraian') {
                     let userAns = (studentAnswers[`uraian_${idx}`] || '').toLowerCase();
-                    let hasZero = userAns.includes("0") || userAns.includes("tidak bisa") || userAns.includes("belum cukup") || userAns.includes("tidak dapat") || userAns.includes("kurang");
+                    let hasZero = userAns.includes("0") || userAns.includes("tidak bisa") || userAns.includes("belum cukup") || userAns.includes("tidak dapat") || userAns.includes("kurang") || userAns.includes("nol");
 
                     if (hasZero && userAns.trim().length > 10) {
-                        uraianScore += 4; // Kunci & alasan logis lengkap
+                        uraianScore = 4; // Kunci & langkah penjelasan lengkap
                     } else if (hasZero) {
-                        uraianScore += 3; // Kunci benar tetapi penjelasan singkat
+                        uraianScore = 3; // Kunci benar
                     } else if (userAns.trim().length > 5) {
-                        uraianScore += 1; // Ada langkah tapi logika/hasil kurang tepat
+                        uraianScore = 1; // Langkah ada
+                    } else {
+                        uraianScore = 0;
                     }
                 }
             });
@@ -621,19 +741,17 @@
                 date: new Date().toLocaleString("id-ID")
             };
 
-            // Simpan lokal
             let records = JSON.parse(localStorage.getItem('quiz_records_f4') || '[]');
             records.push(record);
             localStorage.setItem('quiz_records_f4', JSON.stringify(records));
 
-            // Kirim Otomatis ke Google Sheets
-            if (GOOGLE_SCRIPT_URL) {
+            if (GOOGLE_SCRIPT_URL && GOOGLE_SCRIPT_URL.startsWith('http')) {
                 fetch(GOOGLE_SCRIPT_URL, {
                     method: 'POST',
                     mode: 'no-cors',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(record)
-                }).catch(error => console.error('Error pengiriman:', error));
+                }).catch(error => console.error('Error pengiriman ke Google Sheets:', error));
             }
 
             document.getElementById('screen-quiz').classList.add('hidden');
@@ -641,6 +759,7 @@
 
             document.getElementById('final-score').innerText = nilaiAkhir;
             document.getElementById('final-category').innerText = `Kategori: ${kategori}`;
+            document.getElementById('detail-score-breakdown').innerText = `Rincian: Skor PGK = ${pgkScore}/15 | Skor Uraian = ${uraianScore}/4 (Total Skor: ${totalSkor}/19)`;
             document.getElementById('final-time').innerText = `Waktu Pengerjaan: ${timeFormatted}`;
         }
 
@@ -654,7 +773,7 @@
         }
 
         function exitQuiz() {
-            alert("Terima kasih sudah mengerjakan kuis!");
+            alert("Terima kasih sudah menyelesaikan penilaian formatif 3!");
             location.reload();
         }
 
@@ -682,14 +801,14 @@
             tbody.innerHTML = '';
 
             if (records.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="8" class="center-text">Belum ada data siswa pada browser ini.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="8" class="center-text">Belum ada data siswa tersimpan di browser ini.</td></tr>`;
                 return;
             }
 
             records.forEach((rec, idx) => {
                 let tr = `<tr>
                     <td>${idx + 1}</td>
-                    <td>${rec.name}</td>
+                    <td><b>${rec.name}</b></td>
                     <td>${rec.class}</td>
                     <td>${rec.time}</td>
                     <td>${rec.pgkScore} / 15</td>
@@ -703,27 +822,25 @@
 
         function downloadExcel() {
             let records = JSON.parse(localStorage.getItem('quiz_records_f4') || '[]');
-            if (records.length === 0) {
-                alert("Tidak ada data untuk diunduh!");
-                return;
-            }
+            if (records.length === 0) return alert("Tidak ada data untuk diunduh!");
 
-            let csvContent = "data:text/csv;charset=utf-8,No,Nama Siswa,Kelas,Waktu Pengerjaan,Skor PGK,Skor Uraian,Nilai Akhir,Kategori,Tanggal\n";
+            let csvContent = "\uFEFFNo,Nama Siswa,Kelas,Waktu Pengerjaan,Skor PGK (15),Skor Uraian (4),Nilai Akhir,Kategori,Tanggal\n";
             records.forEach((r, i) => {
                 csvContent += `${i+1},"${r.name}","${r.class}",${r.time},${r.pgkScore},${r.uraianScore},${r.finalScore},"${r.kategori}","${r.date}"\n`;
             });
 
-            let encodedUri = encodeURI(csvContent);
+            let blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            let url = URL.createObjectURL(blob);
             let link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", "Rekap_Nilai_Formatif_3.csv");
+            link.setAttribute("href", url);
+            link.setAttribute("download", `Rekap_Nilai_Formatif_3_${new Date().toISOString().slice(0,10)}.csv`);
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
         }
 
         function clearData() {
-            if (confirm("Apakah Anda yakin ingin menghapus data rekap nilai Formatif 3 pada browser ini?")) {
+            if (confirm("Apakah Anda yakin ingin menghapus SELURUH rekap data Formatif 3 di browser ini?")) {
                 localStorage.removeItem('quiz_records_f4');
                 renderTeacherTable();
             }
